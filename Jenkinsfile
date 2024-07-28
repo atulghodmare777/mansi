@@ -1,26 +1,14 @@
-
-{{ define "livenessProbe" }}
-livenessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: {{ .Values.ingress.healthCheckPath }}
-            port: {{ .Values.containerPort }}
-            scheme: HTTP
-          initialDelaySeconds: 160
-          periodSeconds: 35
-          successThreshold: 1
-          timeoutSeconds: 30
+{{ define "java-volume-mount" }}
+        - mountPath: /usr/local/tomcat/logs
+          name: {{ .Values.name}}-tomcat-logs
+        - mountPath: /home/DigitApps/Logs
+          name: {{ .Values.name}}-app-logs
+{{- if .Values.secretRequired }}
+        - mountPath: /etc/digit
+          name: {{ .Values.namespace}}-db-secret
 {{- end }}
-
-{{ define "readinessProbe" }}
-readinessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: {{ .Values.ingress.healthCheckPath }}
-            port: {{ .Values.containerPort }}
-            scheme: HTTP
-          initialDelaySeconds: 160
-          periodSeconds: 35
-          successThreshold: 1
-          timeoutSeconds: 30
+{{- if or (eq .Values.environment "preprod") (eq .Values.environment "prod") }}
+        - name: prestop-script
+          mountPath: /mnt
+{{- end}}
 {{- end }}
