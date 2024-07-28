@@ -1,14 +1,17 @@
-{{ define "java-volume-mount" }}
-        - mountPath: /usr/local/tomcat/logs
-          name: {{ .Values.name}}-tomcat-logs
-        - mountPath: /home/DigitApps/Logs
-          name: {{ .Values.name}}-app-logs
+{{- define "java-volumes" }}
+- name: {{.Values.name}}-tomcat-logs
+  emptyDir: {}
+- name: {{.Values.name}}-app-logs
+  emptyDir: {}
 {{- if .Values.secretRequired }}
-        - mountPath: /etc/digit
-          name: {{ .Values.namespace}}-db-secret
+- name: {{.Values.namespace}}-db-secret
+  secret:
+    defaultMode: 0666
+    secretName: {{.Values.namespace}}-db-secret
 {{- end }}
 {{- if or (eq .Values.environment "preprod") (eq .Values.environment "prod") }}
-        - name: prestop-script
-          mountPath: /mnt
-{{- end}}
+- name: prestop-script
+  configMap:
+        name: {{ .Values.environment }}-prestop-script-config
+{{- end }}
 {{- end }}
